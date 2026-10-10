@@ -1,0 +1,26 @@
+name: Possible duplicate
+description: Two knots in the archive look like the same knot.
+title: "Possible duplicate: #"
+labels: ["duplicate-flag"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        An automated check will reply with the invariants that settle it. Knots with any differing invariant are proven to be different.
+  - type: input
+    id: knot
+    attributes:
+      label: Knot number
+      description: The number on the knot's card, for example #22.
+    validations:
+      required: true
+  - type: input
+    id: duplicate
+    attributes:
+      label: Possible duplicate of
+      description: The other knot's number, if you have one in mind. Leave empty to compare against the whole archive.
+  - type: textarea
+    id: reason
+    attributes:
+      label: Why do they look the same?
+      description: Optional, but it helps reviewers.
