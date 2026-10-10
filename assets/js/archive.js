@@ -24,12 +24,13 @@
   const { contiguous, verified } = S.searchedUpTo(blocks);
   const PRIMES_TO_7 = 14; // 3₁, 4₁, 5₁–5₂, 6₁–6₃, 7₁–7₇
   const primes = knots.filter(k => k.name && k.name.confirmed && !k.name.name.includes('#') && k.crossings.lower >= 3 && k.crossings.lower <= 7).length;
-  let next = 0; while (verified.has(next)) next++;
+  const count = Number.isInteger(blocks.count) ? blocks.count : verified.size;
+  let next = Number.isInteger(blocks.next) ? blocks.next : 0; while (verified.has(next)) next++;
   $('stKnots').textContent = S.fmt(knots.length);
-  $('stSearched').textContent = S.fmt(verified.size * L.BLOCK_SIZE);
+  $('stSearched').textContent = S.fmt(count);
+  $('stSearched').title = S.fmt(count * L.BLOCK_SIZE) + ' indexes verified; 0–' + S.fmt(contiguous - 1) + ' with no gaps';
   $('stPrimes').textContent = primes + ' of ' + PRIMES_TO_7;
   $('stNext').textContent = '#' + next;
-  $('stSearched').title = 'Indexes 0–' + S.fmt(contiguous - 1) + ' have no gaps';
 
   // ---------- Search text for each knot ----------
   const hay = new Map(knots.map(k => {
