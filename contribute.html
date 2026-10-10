@@ -16,7 +16,7 @@
   <div>
     <div class="eyebrow">Volunteer computing</div>
     <h1 class="page-title">Lend your CPU to the search</h1>
-    <p class="lede">Your browser takes a block of 1,000 braid indexes, checks each one, and prepares the results for you to submit on GitHub. Nothing is installed, and you can pause or close the tab at any time.</p>
+    <p class="lede">Your browser takes the next open blocks of 1,000 braid indexes, checks each index, and prepares the results for you to submit on GitHub in one go. Nothing is installed, and you can pause or close the tab at any time.</p>
   </div>
 
   <section class="two-col">
@@ -24,22 +24,24 @@
       <div class="panel block-card">
         <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px">
           <div>
-            <div class="eyebrow" id="blockEyebrow">Your block</div>
-            <h2 style="font-size:26px;font-variant-numeric:tabular-nums;margin-top:2px" id="blockTitle">Finding an open block…</h2>
+            <div class="eyebrow" id="blockEyebrow">Your blocks</div>
+            <h2 style="font-size:26px;font-variant-numeric:tabular-nums;margin-top:2px" id="blockTitle">Finding open blocks…</h2>
+            <p class="muted" style="margin:4px 0 0;font-size:14px" id="globalLine"></p>
           </div>
           <span class="chip" id="status">Ready</span>
         </div>
 
         <div>
           <div style="display:flex;justify-content:space-between;gap:12px;font-size:14px;color:var(--muted);margin-bottom:6px">
-            <span id="progLabel">Press Start to search this block</span>
+            <span id="progLabel">Press Start to search these blocks</span>
             <span class="mono" id="pct">0%</span>
           </div>
-          <div class="bar" role="progressbar" aria-label="Block progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="bar"><div id="barFill"></div></div>
+          <div class="bar" role="progressbar" aria-label="Search progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="bar"><div id="barFill"></div></div>
+          <div class="pills" id="blockPills" style="margin-top:10px" aria-label="Block status"></div>
         </div>
 
         <dl class="live">
-          <div><dt>Checked</dt><dd id="dChecked">0 / 1,000</dd></div>
+          <div><dt>Checked</dt><dd id="dChecked">0</dd></div>
           <div><dt>New fingerprints</dt><dd id="dNew">0</dd></div>
           <div><dt>Speed</dt><dd id="dSpeed">–</dd></div>
           <div><dt>Time left</dt><dd id="dEta">–</dd></div>
@@ -51,12 +53,15 @@
             <a class="btn big" id="submitBtn" hidden>Submit results on GitHub</a>
           </div>
           <div style="display:flex;flex-direction:column;gap:6px">
+            <span class="eyebrow" id="countLabel">Blocks to run</span>
+            <div class="segmented" role="group" aria-labelledby="countLabel" id="blockCount"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
             <span class="eyebrow" id="coresLabel">CPU cores to use</span>
             <div class="segmented" role="group" aria-labelledby="coresLabel" id="cores"></div>
           </div>
           <div style="display:flex;flex-direction:column;gap:8px;font-size:15px">
             <label class="check"><input type="checkbox" id="visibleOnly" checked> Only run while this tab is in front</label>
-            <label class="check" style="gap:8px">Block <input type="number" id="blockPick" min="0" step="1" style="width:7rem;min-height:36px"> <button type="button" class="btn" id="blockGo" style="min-height:36px">Use this block</button></label>
           </div>
         </div>
 
@@ -68,7 +73,7 @@
       </div>
 
       <div class="panel panel-pad">
-        <h2>Found in this block</h2>
+        <h2>Found in these blocks</h2>
         <p class="muted" style="margin:4px 0 12px;font-size:14px">Fingerprints the archive hasn’t seen. They become knots once the automated check confirms them.</p>
         <p class="empty" id="noneFound" style="padding:18px;margin:0">Nothing new yet. Most indexes turn out to be knots the archive already has.</p>
         <ul class="found-list" id="foundList"></ul>
@@ -79,9 +84,9 @@
       <div class="panel panel-pad">
         <h2 style="margin-bottom:14px">How your results get in</h2>
         <ol class="steps-list">
-          <li><span class="n">1</span><span><b>Your browser finishes the block.</b><br><small>The results are short: which indexes gave new fingerprints, plus a fingerprint of every 100-index chunk.</small></span></li>
-          <li><span class="n">2</span><span><b>You submit them as a GitHub issue.</b><br><small>One click opens a filled-in form. Submitting needs a free GitHub account; the issue is your public record.</small></span></li>
-          <li><span class="n">3</span><span><b>An automated check re-runs the block.</b><br><small>A GitHub Action repeats the search with the same code. Every chunk fingerprint must match.</small></span></li>
+          <li><span class="n">1</span><span><b>Your browser takes the next open blocks.</b><br><small>Blocks are handed out in order from the project's global block count, skipping any that are already verified or waiting for a check.</small></span></li>
+          <li><span class="n">2</span><span><b>You submit them together as one GitHub issue.</b><br><small>One click opens a filled-in form with the results of every block you ran. Submitting needs a free GitHub account; the issue is your public record.</small></span></li>
+          <li><span class="n">3</span><span><b>An automated check re-runs each block.</b><br><small>A GitHub Action repeats the search with the same code. Each block whose fingerprints all match is accepted and adds one to the global block count.</small></span></li>
           <li><span class="n">4</span><span><b>New knots are committed with your name.</b><br><small>knots.json is updated, the site rebuilds, and each new knot's page credits you.</small></span></li>
         </ol>
       </div>
