@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Knot Archive</title>
+<meta name="description" content="A community-built table of knots. Volunteers' computers search for new knots; every discovery is verified before it joins the archive.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+<header id="site-header"></header>
+
+<main class="wrap">
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Community knot table</div>
+      <h1 class="page-title">Every knot here was found by a volunteer's computer</h1>
+      <p class="lede">Volunteers search braid indexes in their browsers. Each new knot is re-checked before it joins the table. Browse what's been found, read what's known about each knot, or lend your CPU to find the next one.</p>
+    </div>
+    <dl class="stats">
+      <div><dt>Knots found</dt><dd id="stKnots">–</dd></div>
+      <div><dt>Indexes searched</dt><dd id="stSearched">–</dd></div>
+      <div><dt>Prime knots ≤ 7 crossings</dt><dd id="stPrimes">–</dd></div>
+      <div><dt>Next open block</dt><dd id="stNext">–</dd></div>
+    </dl>
+  </section>
+
+  <section aria-label="Archive" style="display:flex;flex-direction:column;gap:16px">
+    <div class="toolbar">
+      <label class="sr-only" for="q">Search knots</label>
+      <input id="q" type="search" placeholder="Search by name, number, nickname, PD code or polynomial" autocomplete="off">
+      <div class="pills" role="group" aria-label="Crossing number" id="filters"></div>
+      <label class="eyebrow" for="sort">Sort</label>
+      <select id="sort">
+        <option value="crossings">By crossing number</option>
+        <option value="newest">Newest discoveries</option>
+        <option value="hits">Most rediscovered</option>
+      </select>
+    </div>
+    <div class="countline"><span id="countLine" role="status">Loading the archive…</span><span id="pageLine"></span></div>
+    <div class="grid" id="grid"></div>
+    <nav class="pager" aria-label="Pages" id="pager"></nav>
+  </section>
+
+  <section class="steps" id="how" aria-label="How it works">
+    <div class="panel">
+      <div class="num">1 · Search</div>
+      <h2>Volunteers check braid indexes</h2>
+      <p>Index 0, 1, 2… always means the same braid on every computer, so the work splits into blocks of 1,000 that anyone can run from the <a href="contribute.html">Contribute</a> page.</p>
+    </div>
+    <div class="panel">
+      <div class="num">2 · Verify</div>
+      <h2>The project re-runs every block</h2>
+      <p>A finished block is submitted as a GitHub issue. An automated check repeats the search and accepts the block only if every result matches.</p>
+    </div>
+    <div class="panel">
+      <div class="num">3 · Publish</div>
+      <h2>knots.json updates, the site rebuilds</h2>
+      <p>Verified knots are committed to the archive with credit to their discoverer. Anyone can download the whole table or <a href="review.html">help review</a>.</p>
+    </div>
+  </section>
+</main>
+
+<footer id="site-footer"></footer>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/engine.js"></script>
+<script src="assets/js/diagram.js"></script>
+<script src="assets/js/knotlib.js"></script>
+<script src="assets/js/site.js"></script>
+<script src="assets/js/archive.js"></script>
+</body>
+</html>

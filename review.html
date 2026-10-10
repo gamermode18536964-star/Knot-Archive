@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review queue · Knot Archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+<header id="site-header"></header>
+
+<main class="wrap">
+  <div>
+    <div class="eyebrow">Open to everyone · merged by maintainers on GitHub</div>
+    <h1 class="page-title">Review queue</h1>
+    <p class="lede">Everything waiting to change the archive. Block submissions are checked automatically; written descriptions and duplicate flags need a person to look.</p>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Queue">
+    <button type="button" role="tab" id="tab-subs" aria-controls="pane-subs" aria-selected="true">Block submissions <span class="count" id="n-subs">–</span></button>
+    <button type="button" role="tab" id="tab-edits" aria-controls="pane-edits" aria-selected="false">Description edits <span class="count" id="n-edits">–</span></button>
+    <button type="button" role="tab" id="tab-dups" aria-controls="pane-dups" aria-selected="false">Duplicate flags <span class="count" id="n-dups">–</span></button>
+  </div>
+
+  <div id="notice" class="notice" hidden></div>
+  <section role="tabpanel" id="pane-subs" aria-labelledby="tab-subs" style="display:flex;flex-direction:column;gap:12px"></section>
+  <section role="tabpanel" id="pane-edits" aria-labelledby="tab-edits" style="display:flex;flex-direction:column;gap:12px" hidden></section>
+  <section role="tabpanel" id="pane-dups" aria-labelledby="tab-dups" style="display:flex;flex-direction:column;gap:12px" hidden></section>
+</main>
+
+<footer id="site-footer"></footer>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/engine.js"></script>
+<script src="assets/js/diagram.js"></script>
+<script src="assets/js/knotlib.js"></script>
+<script src="assets/js/site.js"></script>
+<script src="assets/js/review.js"></script>
+</body>
+</html>

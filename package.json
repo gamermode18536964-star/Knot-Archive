@@ -1,0 +1,16 @@
+{
+  "name": "knot-archive",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A community-built table of knots, discovered by volunteers' browsers and verified by GitHub Actions.",
+  "scripts": {
+    "test": "node scripts/test.mjs",
+    "serve": "npx --yes serve -l 8080 .",
+    "seed": "node scripts/seed.mjs",
+    "verify": "node scripts/verify-submission.mjs",
+    "check-duplicate": "node scripts/check-duplicate.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

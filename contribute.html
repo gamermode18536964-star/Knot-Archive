@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contribute · Knot Archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+<header id="site-header"></header>
+
+<main class="wrap">
+  <div>
+    <div class="eyebrow">Volunteer computing</div>
+    <h1 class="page-title">Lend your CPU to the search</h1>
+    <p class="lede">Your browser takes a block of 1,000 braid indexes, checks each one, and prepares the results for you to submit on GitHub. Nothing is installed, and you can pause or close the tab at any time.</p>
+  </div>
+
+  <section class="two-col">
+    <div class="main" style="display:flex;flex-direction:column;gap:20px">
+      <div class="panel block-card">
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px">
+          <div>
+            <div class="eyebrow" id="blockEyebrow">Your block</div>
+            <h2 style="font-size:26px;font-variant-numeric:tabular-nums;margin-top:2px" id="blockTitle">Finding an open block…</h2>
+          </div>
+          <span class="chip" id="status">Ready</span>
+        </div>
+
+        <div>
+          <div style="display:flex;justify-content:space-between;gap:12px;font-size:14px;color:var(--muted);margin-bottom:6px">
+            <span id="progLabel">Press Start to search this block</span>
+            <span class="mono" id="pct">0%</span>
+          </div>
+          <div class="bar" role="progressbar" aria-label="Block progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="bar"><div id="barFill"></div></div>
+        </div>
+
+        <dl class="live">
+          <div><dt>Checked</dt><dd id="dChecked">0 / 1,000</dd></div>
+          <div><dt>New fingerprints</dt><dd id="dNew">0</dd></div>
+          <div><dt>Speed</dt><dd id="dSpeed">–</dd></div>
+          <div><dt>Time left</dt><dd id="dEta">–</dd></div>
+        </dl>
+
+        <div class="controls">
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button type="button" class="btn primary big" id="runBtn" disabled>Start</button>
+            <a class="btn big" id="submitBtn" hidden>Submit results on GitHub</a>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span class="eyebrow" id="coresLabel">CPU cores to use</span>
+            <div class="segmented" role="group" aria-labelledby="coresLabel" id="cores"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:15px">
+            <label class="check"><input type="checkbox" id="visibleOnly" checked> Only run while this tab is in front</label>
+            <label class="check" style="gap:8px">Block <input type="number" id="blockPick" min="0" step="1" style="width:7rem;min-height:36px"> <button type="button" class="btn" id="blockGo" style="min-height:36px">Use this block</button></label>
+          </div>
+        </div>
+
+        <div id="fallback" hidden>
+          <p style="margin:0 0 8px">The results are too long to pass to GitHub in a link. Copy them, then paste them into the <b>Results</b> box of the form that opens.</p>
+          <textarea class="json" id="jsonOut" readonly aria-label="Results JSON"></textarea>
+          <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap"><button type="button" class="btn" id="copyJson">Copy results</button><a class="btn primary" id="openForm">Open the submission form</a></div>
+        </div>
+      </div>
+
+      <div class="panel panel-pad">
+        <h2>Found in this block</h2>
+        <p class="muted" style="margin:4px 0 12px;font-size:14px">Fingerprints the archive hasn’t seen. They become knots once the automated check confirms them.</p>
+        <p class="empty" id="noneFound" style="padding:18px;margin:0">Nothing new yet. Most indexes turn out to be knots the archive already has.</p>
+        <ul class="found-list" id="foundList"></ul>
+      </div>
+    </div>
+
+    <aside>
+      <div class="panel panel-pad">
+        <h2 style="margin-bottom:14px">How your results get in</h2>
+        <ol class="steps-list">
+          <li><span class="n">1</span><span><b>Your browser finishes the block.</b><br><small>The results are short: which indexes gave new fingerprints, plus a fingerprint of every 100-index chunk.</small></span></li>
+          <li><span class="n">2</span><span><b>You submit them as a GitHub issue.</b><br><small>One click opens a filled-in form. Submitting needs a free GitHub account; the issue is your public record.</small></span></li>
+          <li><span class="n">3</span><span><b>An automated check re-runs the block.</b><br><small>A GitHub Action repeats the search with the same code. Every chunk fingerprint must match.</small></span></li>
+          <li><span class="n">4</span><span><b>New knots are committed with your name.</b><br><small>knots.json is updated, the site rebuilds, and each new knot's page credits you.</small></span></li>
+        </ol>
+      </div>
+      <div class="panel panel-pad">
+        <h2 style="margin-bottom:10px">Your contributions</h2>
+        <label class="sr-only" for="me">Your GitHub username</label>
+        <input id="me" type="text" placeholder="Your GitHub username" autocomplete="off" style="width:100%">
+        <dl class="live" style="margin-top:12px;grid-template-columns:repeat(2,minmax(0,1fr))">
+          <div><dt>Blocks verified</dt><dd id="myBlocks">–</dd></div>
+          <div><dt>Knots credited</dt><dd id="myKnots">–</dd></div>
+        </dl>
+      </div>
+    </aside>
+  </section>
+</main>
+
+<footer id="site-footer"></footer>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/engine.js"></script>
+<script src="assets/js/diagram.js"></script>
+<script src="assets/js/knotlib.js"></script>
+<script src="assets/js/site.js"></script>
+<script src="assets/js/contribute.js"></script>
+</body>
+</html>
