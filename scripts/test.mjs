@@ -51,7 +51,13 @@ for (const b of blocks.blocks) {
   if (seenBlocks.has(b.block)) fail(`block ${b.block} listed twice`); seenBlocks.add(b.block);
   for (const id of b.newKnots || []) if (!ids.has(id)) fail(`block ${b.block} credits unknown knot #${id}`);
 }
-ok(`${blocks.blocks.length} blocks checked`);
+const verifiedList = blocks.blocks.filter(b => b.status === 'verified');
+if (blocks.count !== verifiedList.length) fail(`blocks.json count is ${blocks.count} but ${verifiedList.length} blocks are verified`);
+let nextFree = 0; while (verifiedList.some(b => b.block === nextFree)) nextFree++;
+if (blocks.next !== nextFree) fail(`blocks.json next is ${blocks.next}, expected ${nextFree}`);
+const seqs = verifiedList.map(b => b.seq).sort((a, b) => a - b);
+if (seqs.some((s, i) => s !== i + 1)) fail('block sequence numbers should run 1, 2, 3… with no gaps');
+ok(`${blocks.blocks.length} blocks checked (global block count ${blocks.count}, next block #${blocks.next})`);
 
 // 3. Descriptions
 const dir = join(ROOT, 'data/descriptions');
