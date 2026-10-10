@@ -2,7 +2,7 @@
 // Used to create the starting archive. Usage:
 //   node scripts/seed.mjs 0-14            run blocks 0 to 14
 //   node scripts/seed.mjs 15 --by alice   run block 15 and credit @alice
-import { E, L, loadArchive, loadBlocks, saveArchive, saveBlocks, writeDrawing, runBlock, hashesOf } from './lib.mjs';
+import { E, L, loadArchive, loadBlocks, saveArchive, saveBlocks, addVerifiedBlock, writeDrawing, runBlock, hashesOf } from './lib.mjs';
 
 const args = process.argv.slice(2);
 const range = args.find(a => /^\d+(-\d+)?$/.test(a));
@@ -29,8 +29,8 @@ for (let b = from; b <= to; b++) {
     if (r.drawingChanged) redraw.add(r.knot);
   }
   for (const k of redraw) writeDrawing(k);
-  blocks.blocks.push({ block: b, start: b * L.BLOCK_SIZE, end: b * L.BLOCK_SIZE + L.BLOCK_SIZE - 1, status: 'verified', by, issue: null, mode: 'seed', newKnots: newIds, chunkHashes: hashesOf(res.keys), verifiedAt: new Date().toISOString() });
-  console.log(`block ${b}: ${newIds.length} new knots (${archive.knots.length} total) in ${((Date.now() - t0) / 1000).toFixed(1)} s`);
+  const seq = addVerifiedBlock(blocks, { block: b, start: b * L.BLOCK_SIZE, end: b * L.BLOCK_SIZE + L.BLOCK_SIZE - 1, by, issue: null, mode: 'seed', newKnots: newIds, chunkHashes: hashesOf(res.keys), verifiedAt: new Date().toISOString() });
+  console.log(`block ${b} (global block count ${seq}): ${newIds.length} new knots (${archive.knots.length} total) in ${((Date.now() - t0) / 1000).toFixed(1)} s`);
 }
 saveArchive(archive);
 saveBlocks(blocks);
