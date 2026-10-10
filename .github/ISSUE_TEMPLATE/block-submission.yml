@@ -6,12 +6,12 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for lending your CPU! Press **Create** and an automated check will re-run this block, usually within a few minutes. New knots it confirms are added to the archive with your GitHub name.
+        Thanks for lending your CPU! Press **Create** and an automated check will re-run these blocks, usually within a few minutes. New knots it confirms are added to the archive with your GitHub name.
   - type: input
     id: block
     attributes:
-      label: Block
-      description: The block number shown on the Contribute page.
+      label: Blocks
+      description: The block numbers shown on the Contribute page.
     validations:
       required: true
   - type: textarea
