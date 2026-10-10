@@ -39,9 +39,10 @@
     $('pane-subs').innerHTML = list.map(i => {
       const labels = i.labels.map(l => l.name);
       const st = labels.includes('verified') ? ['Verified', 'ok'] : labels.includes('rejected') ? ['Rejected', 'warn'] : labels.includes('already-verified') ? ['Already verified', ''] : i.state === 'open' ? ['Checking', 'info'] : ['Closed', ''];
-      const m = (i.title || '').match(/#(\d+)/), b = m ? Number(m[1]) : null;
-      const rec = b !== null ? blocks.blocks.find(x => x.block === b && x.issue === i.number) : null;
-      const detail = rec ? (rec.newKnots.length ? rec.newKnots.length + ' new knot' + (rec.newKnots.length === 1 ? '' : 's') + ': ' + rec.newKnots.slice(0, 8).map(id => '<a href="knot.html?id=' + id + '">#' + id + '</a>').join(', ') + (rec.newKnots.length > 8 ? '…' : '') : 'no new knots')
+      const recs = blocks.blocks.filter(x => x.issue === i.number && x.status === 'verified');
+      const newIds = recs.flatMap(r => r.newKnots || []);
+      const detail = recs.length ? recs.length + (recs.length === 1 ? ' block' : ' blocks') + ' accepted (global count ' + recs.map(r => r.seq).join(', ') + ') · ' +
+          (newIds.length ? newIds.length + ' new knot' + (newIds.length === 1 ? '' : 's') + ': ' + newIds.slice(0, 8).map(id => '<a href="knot.html?id=' + id + '">#' + id + '</a>').join(', ') + (newIds.length > 8 ? '…' : '') : 'no new knots')
         : st[0] === 'Checking' ? 'the automated re-run is in progress' : '';
       return '<div class="panel row-card"><div><div class="title"><b>' + esc(i.title) + '</b><span class="chip ' + st[1] + '">' + st[0] + '</span></div>' +
         '<div class="muted" style="font-size:15px">' + S.profileLink(i.user && i.user.login) + ' · ' + ago(i.created_at) + (detail ? ' · ' + detail : '') + '</div></div>' +
