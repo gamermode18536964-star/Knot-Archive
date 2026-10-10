@@ -6,36 +6,18 @@ No server, database or hosting bill: everything runs on GitHub.
 
 ## How it works
 
-1. **Search.** Every *index* (0, 1, 2, …) stands for one braid, in a fixed order that's identical on every computer. On the Contribute page a volunteer's browser takes a block of 1,000 indexes, closes each braid into a loop, and computes its **fingerprint**: the Jones and Alexander polynomials, with mirror images counted as the same knot. A fingerprint the archive hasn't seen is a new knot.
-2. **Submit.** When the block finishes, the page opens a filled-in GitHub issue. The results are short: the new fingerprints, plus a SHA-256 fingerprint of each 100-index chunk.
-3. **Verify.** A GitHub Action re-runs the block with the same code. If every chunk matches, new knots go into `data/knots.json`, credited to the volunteer. Each new knot's braid is turned into a diagram and simplified with Reidemeister moves until it has as few crossings as the search can find.
+1. **Search.** Every *index* (0, 1, 2, …) stands for one braid, in a fixed order that's identical on every computer. Indexes are grouped into blocks of 1,000. On the Contribute page a volunteer picks how many blocks to run (1, 3, 5 or 10), and the page hands out the next open ones in order. For every index the browser closes the braid into a loop and computes its **fingerprint**: the Jones and Alexander polynomials, with mirror images counted as the same knot. A fingerprint the archive hasn't seen is a new knot.
+2. **Submit.** When the run finishes, the page opens one filled-in GitHub issue for all of its blocks. The results are short: per block, the indexes of new fingerprints plus a SHA-256 fingerprint of each 100-index chunk.
+3. **Verify.** A GitHub Action re-runs each block with the same code. Each block whose chunks all match is accepted and adds one to the **global block count**. New knots go into `data/knots.json`, credited to the volunteer. Each new knot's braid is turned into a diagram and simplified with Reidemeister moves until it has as few crossings as the search can find. Blocks someone else verified first are skipped, and a block that doesn't match is rejected without affecting the others in the same submission.
 4. **Publish.** The site redeploys, and the bot replies on the issue with links to the new knots.
 
+### Which blocks a volunteer gets
+
+`data/blocks.json` keeps the global block count and the next open block. The Contribute page starts there and skips any block that is already verified, waiting in an open submission issue, or was submitted from the same browser in the last three days. There's no way to pick an old block by hand.
+
+Without a server, two volunteers who press Start at the same moment can still get the same blocks: a block only shows up as taken once its results are submitted. The page re-checks open submissions when you press Start, which narrows the window, and the verifier simply skips the second copy.
+
 Two knots with any different invariant are mathematically guaranteed to be different. So the archive can't contain true duplicates; the risk is the reverse, two different knots sharing a fingerprint. That doesn't happen at the sizes searched so far, but will around 11+ crossings. The duplicate-flag check and the review queue exist for that.
-
-## Put it on GitHub
-
-You need a free GitHub account. About 10 minutes.
-
-1. **Create a repository.** On GitHub, click **New repository**. Name it, for example `knot-archive`, and make it **Public** (free GitHub Pages needs that, and volunteers need to be able to open issues). Don't add a README; this project has one.
-2. **Upload the files.** Either:
-   - **On the website:** open the new repository, click **uploading an existing file**, and drag in *everything inside* the `knot-archive` folder, including the hidden `.github` folder. (On a Mac, press ⌘⇧. in Finder to show hidden files. On Windows, turn on *Hidden items* in File Explorer's View menu.) Commit.
-   - **With git:**
-     ```sh
-     cd knot-archive
-     git init -b main
-     git add .
-     git commit -m "Knot Archive"
-     git remote add origin https://github.com/YOUR-NAME/knot-archive.git
-     git push -u origin main
-     ```
-3. **Turn on Pages.** In the repository go to **Settings → Pages**, and under *Build and deployment* set **Source** to **GitHub Actions**.
-4. **Let the bot write.** Go to **Settings → Actions → General**, scroll to *Workflow permissions*, choose **Read and write permissions**, and save. The verifier needs this to commit knots and reply on issues.
-5. **Create the labels.** Open the **Actions** tab (click *I understand… enable them* if GitHub asks), pick **Set up repository** on the left, and press **Run workflow**.
-6. **Publish.** In the same tab pick **Deploy site** and press **Run workflow**. After a minute the site is live at `https://YOUR-NAME.github.io/knot-archive/`. The page shows the address under Settings → Pages.
-7. **Try it.** Open the site, go to **Contribute**, press **Start**, and submit the block when it finishes. Within a few minutes the bot replies on the issue, and the archive and the "Indexes searched" count update.
-
-The site finds its repository from its own address, so there's nothing to configure. If you use a custom domain, set `repo` in `assets/js/config.js`.
 
 ## Run it on your computer
 
@@ -66,7 +48,7 @@ assets/js/knotlib.js     names, crossing-number bounds, drawings, duplicate chec
 assets/js/worker.js      the volunteer search, one per CPU core
 assets/js/site.js        shared page code; archive.js, knot.js, contribute.js, review.js
 data/knots.json          the archive, one knot per line
-data/blocks.json         which blocks are verified, by whom, with their chunk fingerprints
+data/blocks.json         global block count, next open block, and every verified block
 data/drawings/<id>.json  each knot's drawing (path data, coloured by the page)
 data/descriptions/<id>.md  community-written descriptions
 scripts/                 seeding, verification, duplicate check, tests
@@ -89,11 +71,33 @@ The engine files are shared by the browser and the Actions, so a knot is compute
 - `name` is a Rolfsen-table name, `confirmed` when the Alexander polynomial matches and the knot provably has 7 or fewer crossings.
 - `pd` is the simplest diagram as a PD code (KnotTheory convention).
 
+### data/blocks.json
+
+```json
+{ "count": 25, "next": 25, "blocks": [
+  {"seq":16, "block":15, "start":15000, "end":15999, "status":"verified", "by":"alice", "issue":30, "mode":"full", "newKnots":[], "chunkHashes":["…"], "verifiedAt":"…"} ] }
+```
+
+- `count` is the global block count: how many blocks have been verified. It goes up by one for every accepted block.
+- `next` is the lowest block number not yet verified, where the Contribute page starts handing out blocks.
+- `seq` is the global count at the moment that block was accepted, so every upload gets its own number.
+
+### A submission
+
+The Contribute page puts this in the issue (compact, so 10 blocks still fit in one link):
+
+```json
+{"v":3, "engine":"braid-closure-v1", "blocks":[{"b":15, "h":"<10 chunk fingerprints of 16 hex characters, joined>", "n":[15212], "s":[[36,15333]]}], "secs":17, "cores":4}
+```
+
+`b` is the block, `h` the chunk fingerprints, `n` the indexes of new fingerprints, `s` pairs of [knot id, index of a shorter braid for that knot]. The verifier also accepts the older single-block format.
+
 ## Looking after the archive
 
 - **Description edits** arrive as pull requests that only touch `data/descriptions/`. The Test workflow checks them. Read them and merge.
 - **Duplicate flags** get an automatic reply. Close a flag when the reply proves the knots different. If it ever says *Same knot*, merge the entries by hand: keep the lower-numbered one in `knots.json`, move the other's description over, and add a note to the issue.
-- **Verification cost.** By default each block is re-run in full, which takes a few seconds today. When blocks get slow, set a repository variable `KNOT_VERIFY_MODE` to `audit` (Settings → Secrets and variables → Actions → Variables). The check then re-runs two random chunks plus every index the volunteer claims. Someone who skipped work gets caught with high probability over a few blocks.
+- **Verification cost.** By default each block is re-run in full, which takes a few seconds per block today (a 10-block submission about half a minute). When blocks get slow, set a repository variable `KNOT_VERIFY_MODE` to `audit` (Settings → Secrets and variables → Actions → Variables). The check then re-runs two random chunks plus every index the volunteer claims. Someone who skipped work gets caught with high probability over a few blocks.
+- **Resetting the archive.** To go back to the starting 65 knots: delete `data/knots.json`, `data/blocks.json` and `data/drawings/`, run `node scripts/seed.mjs 0-14`, then commit and push. Knot numbers come out the same, so the descriptions still match. For a completely empty archive, set `data/knots.json` to `{"format":"knot-archive/2","engine":"braid-closure-v1","blockSize":1000,"chunkSize":100,"updated":null,"knots":[]}` and `data/blocks.json` to `{"count":0,"next":0,"blocks":[]}`, and delete `data/drawings/` and the files in `data/descriptions/`.
 - **Changing the engine.** Index numbers depend on the enumeration in `engine.js`. If you change it, bump `ENGINE_VERSION` and start a new archive: old results describe different braids.
 
 ## Known limits
