@@ -1,0 +1,87 @@
+# Re-runs a volunteer's block when they open a "Block submission" issue.
+# Accepted blocks are committed to data/ and the site is redeployed.
+name: Verify block submission
+
+on:
+  issues:
+    types: [opened, edited, reopened]
+
+# One archive write at a time, so two submissions never race each other.
+concurrency:
+  group: archive-writes
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  verify:
+    if: >-
+      github.event.issue.state == 'open' &&
+      (contains(github.event.issue.labels.*.name, 'block-submission') || startsWith(github.event.issue.title, 'Block submission'))
+    runs-on: ubuntu-latest
+    outputs:
+      status: ${{ steps.verify.outputs.status }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Re-run the block
+        id: verify
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+          KNOT_VERIFY_MODE: ${{ vars.KNOT_VERIFY_MODE || 'full' }}
+        run: |
+          node scripts/verify-submission.mjs
+          echo "status=$(node -p "require('./result.json').status")" >> "$GITHUB_OUTPUT"
+          node -p "require('./result.json').comment" > comment.md
+
+      - name: Commit verified results
+        if: steps.verify.outputs.status == 'verified'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          git commit -m "Verify block submitted in #${{ github.event.issue.number }}"
+          git pull --rebase
+          git push
+
+      - name: Reply and close
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ github.event.issue.number }}
+          STATUS: ${{ steps.verify.outputs.status }}
+        run: |
+          gh label create verified --color 0B7A75 --description "Block re-run and accepted" --force
+          gh label create rejected --color B45309 --description "Block results did not match" --force
+          gh label create already-verified --color 8C959F --description "Block was verified earlier" --force
+          gh issue comment "$NUMBER" --body-file comment.md
+          case "$STATUS" in
+            verified) gh issue edit "$NUMBER" --add-label verified && gh issue close "$NUMBER" --reason completed ;;
+            skipped)  gh issue edit "$NUMBER" --add-label already-verified && gh issue close "$NUMBER" --reason "not planned" ;;
+            *)        gh issue edit "$NUMBER" --add-label rejected && gh issue close "$NUMBER" --reason "not planned" ;;
+          esac
+
+      - name: Report a crash
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ github.event.issue.number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh issue comment "$NUMBER" --body "The automated check stopped with an error before it could finish, so nothing was changed. A maintainer can see what happened in [the workflow log]($RUN_URL)."
+
+  deploy:
+    needs: verify
+    if: needs.verify.outputs.status == 'verified'
+    uses: ./.github/workflows/pages.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write

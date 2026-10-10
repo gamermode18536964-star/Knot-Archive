@@ -1,0 +1,24 @@
+# Run once after creating the repository (Actions tab → "Set up repository" → Run workflow).
+# Creates the issue labels the submission and flag forms use.
+name: Set up repository
+
+on:
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  labels:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create block-submission --color 2B3F99 --description "Results from a volunteer's block" --force
+          gh label create duplicate-flag --color B45309 --description "Two knots that might be the same" --force
+          gh label create verified --color 0B7A75 --description "Block re-run and accepted" --force
+          gh label create rejected --color B45309 --description "Block results did not match" --force
+          gh label create already-verified --color 8C959F --description "Block was verified earlier" --force
+          echo "Labels are ready."

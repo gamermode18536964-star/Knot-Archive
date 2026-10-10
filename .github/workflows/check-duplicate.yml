@@ -1,0 +1,29 @@
+# Replies to a "Possible duplicate" issue with the invariants that decide it.
+name: Check duplicate flag
+
+on:
+  issues:
+    types: [opened, reopened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    if: >-
+      contains(github.event.issue.labels.*.name, 'duplicate-flag') || startsWith(github.event.issue.title, 'Possible duplicate')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Compare the knots
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: node scripts/check-duplicate.mjs
+      - name: Reply
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue comment "${{ github.event.issue.number }}" --body-file comment.md
