@@ -21,10 +21,23 @@ export function loadArchive() {
   }
   return JSON.parse(readFileSync(KNOTS, 'utf8'));
 }
+// data/blocks.json:
+//   count  the global block count: how many blocks have been verified. It goes up by one for every block accepted.
+//   next   the block the Contribute page hands out next: the lowest block number not yet verified.
+//   blocks one entry per verified block; "seq" is the global count at the moment it was accepted.
 export function loadBlocks() {
-  if (!existsSync(BLOCKS)) return { blocks: [] };
-  return JSON.parse(readFileSync(BLOCKS, 'utf8'));
+  if (!existsSync(BLOCKS)) return { count: 0, next: 0, blocks: [] };
+  const b = JSON.parse(readFileSync(BLOCKS, 'utf8'));
+  b.blocks = b.blocks || [];
+  return b;
 }
+// Add a verified block and give it the next global sequence number.
+export function addVerifiedBlock(blocks, entry) {
+  const seq = blocks.blocks.filter(b => b.status === 'verified').length + 1;
+  blocks.blocks.push({ seq, ...entry, status: 'verified' });
+  return seq;
+}
+export const isVerified = (blocks, n) => blocks.blocks.some(b => b.block === n && b.status === 'verified');
 
 // One knot per line keeps diffs readable in pull requests and commits.
 export function saveArchive(archive) {
@@ -36,8 +49,12 @@ export function saveArchive(archive) {
 }
 export function saveBlocks(blocks) {
   blocks.blocks.sort((a, b) => a.block - b.block);
+  const done = new Set(blocks.blocks.filter(b => b.status === 'verified').map(b => b.block));
+  let next = 0; while (done.has(next)) next++;
+  blocks.count = done.size;
+  blocks.next = next;
   const lines = blocks.blocks.map(b => '  ' + JSON.stringify(b));
-  writeFileSync(BLOCKS, '{\n "blocks": [\n' + lines.join(',\n') + '\n ]\n}\n');
+  writeFileSync(BLOCKS, '{\n "count": ' + blocks.count + ',\n "next": ' + blocks.next + ',\n "blocks": [\n' + lines.join(',\n') + (lines.length ? '\n' : '') + ' ]\n}\n');
 }
 export function writeDrawing(k) {
   mkdirSync(DRAWINGS, { recursive: true });
